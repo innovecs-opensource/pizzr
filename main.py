@@ -3,6 +3,7 @@ import json
 import pymongo
 import pystache
 import os
+from bson import json_util
 from pymongo import MongoClient
 
 mongo = MongoClient() 
@@ -22,11 +23,13 @@ def hello():
 	print TPL
 	return TPL['index']
 
-@app.route('/wishes')
+@app.route('/wish')
 def list():
 	db = mongo.pizzr
-	db.wishes
-	return ''
+	wishes = []
+	for wish in db.wishes.find():
+		wishes.append(wish)
+	return json_util.dumps( wishes )
 
 if __name__ == "__main__":
 	app.debug = True
