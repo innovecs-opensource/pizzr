@@ -22,7 +22,6 @@ TPL = importtpls( 'tpl' )
 
 @app.route('/')
 def hello():
-	print TPL
 	return TPL['index']
 
 @app.route('/is_updated/<since>')
@@ -34,7 +33,7 @@ def checkupdate( since ):
 	else:
 		return since
 
-# get list and save new
+# get list and save new item
 @app.route('/wish', methods = ['GET', 'POST'])
 def list():
 	if request.method == 'POST':
@@ -47,7 +46,7 @@ def list():
 
 	return json_util.dumps( ret )
 
-# delete by id
+# delete by id, update
 @app.route('/wish/<id>', methods = ['DELETE', 'PUT'])
 def one( id ):
 	db.wishes.remove( {'_id': id} )

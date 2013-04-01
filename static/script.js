@@ -26,6 +26,7 @@ Pizzr.Collections.Wishes = Backbone.Collection.extend({
 })
 
 Pizzr.Templates = {
+	// move out?
 	what: '<div class="icon icon-{{ what }}"></div><ol class="list"></ol>{{^ readonly }}<form><input type="text" placeholder="My Name" {{# name }} value="{{ name }}" {{/ name }} class="who" name="who"><button class="add">I want</button></form>{{/ readonly }}',
 	wish: '<span{{# my }} class="my"{{/ my }}>{{ who }}</span>{{# my }}<span class="delete"></span>{{/ my }}'
 }
@@ -35,6 +36,8 @@ Pizzr.Views.App = Backbone.View.extend({
 		var _this = this
 		this.poll()
 	},
+	// data - move out?
+	types: ['pizza', 'sushi', 'booze', 'tram', 'island'],
 	updated: 0,
 	poll: function() {
 		var _this = this;
@@ -48,10 +51,9 @@ Pizzr.Views.App = Backbone.View.extend({
 				})	
 			}
 
-			setTimeout( function() { _this.poll() }, 400 )
+			setTimeout( function() { _this.poll() }, 1000 )
 		})
 	},
-	types: ['pizza', 'sushi', 'booze', 'tram', 'island'],
 	saveName: function( name ) {
 		window.localStorage.setItem( 'myName', name )
 		this.trigger('name:change')
