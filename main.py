@@ -6,6 +6,7 @@ import os
 import time
 from bson import json_util
 from pymongo import MongoClient
+from threading import Timer
 
 db = MongoClient().pizzr 
 app = Flask( __name__ )
@@ -23,6 +24,15 @@ TPL = importtpls( 'tpl' )
 def hello():
 	print TPL
 	return TPL['index']
+
+@app.route('/is_updated/<since>')
+def checkupdate( since ):
+	ts_obj = db.items.find_one('timestamp')
+	ts = ts_obj['time']
+	if ts - float( since ) > 0.01:
+		return str(ts)
+	else:
+		return since
 
 # get list and save new
 @app.route('/wish', methods = ['GET', 'POST'])

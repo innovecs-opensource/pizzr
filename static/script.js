@@ -26,20 +26,32 @@ Pizzr.Collections.Wishes = Backbone.Collection.extend({
 })
 
 Pizzr.Templates = {
-	what: '<div class="icon icon-{{ what }}"></div><ul class="list"></ul><form><input type="text" placeholder="My Name" {{# name }} value="{{ name }}" {{/ name }} class="who" name="who"><button class="add">I want</button></form>',
+	what: '<div class="icon icon-{{ what }}"></div><ol class="list"></ol>{{^ readonly }}<form><input type="text" placeholder="My Name" {{# name }} value="{{ name }}" {{/ name }} class="who" name="who"><button class="add">I want</button></form>{{/ readonly }}',
 	wish: '<span{{# my }} class="my"{{/ my }}>{{ who }}</span>{{# my }}<span class="delete"></span>{{/ my }}'
 }
 
 Pizzr.Views.App = Backbone.View.extend({
 	initialize: function() {
 		var _this = this
-		this.collection.fetch({
-			success: function( data ) {
-				_this.render()
+		this.poll()
+	},
+	updated: 0,
+	poll: function() {
+		var _this = this;
+		$.get('/is_updated/' + this.updated, function(data) {
+			if (_this.updated != data) {
+				_this.updated = data;
+				_this.collection.fetch({
+					success: function( data ) {
+						_this.render()
+					}
+				})	
 			}
+
+			setTimeout( function() { _this.poll() }, 400 )
 		})
 	},
-	types: ['pizza', 'sushi', 'booze'],
+	types: ['pizza', 'sushi', 'booze', 'tram', 'island'],
 	saveName: function( name ) {
 		window.localStorage.setItem( 'myName', name )
 		this.trigger('name:change')
@@ -47,11 +59,15 @@ Pizzr.Views.App = Backbone.View.extend({
 	getName: function() {
 		return window.localStorage.getItem( 'myName' ) 
 	},
+	isReadOnly: function() {
+		return window.location.hash == '#readonly'
+	},
 	render: function() {
 		var byWhat = this.collection.groupBy('what')
 			,wishes
 			,view
 			,el
+		this.$el.empty()
 
 		_(this.types).forEach(function( type ) {
 			view = new Pizzr.Views.What({
@@ -81,7 +97,12 @@ Pizzr.Views.What = Backbone.View.extend({
 		this.app.on('name:change', this.render, this)
 	},
 	render: function() {
-		this.$el.html( Mustache.render( Pizzr.Templates.what, {what: this.what, name: this.app.getName()} ))
+		var attrs = {
+			what: this.what,
+			readonly: this.app.isReadOnly(),
+			name: this.app.getName()
+		}
+		this.$el.html( Mustache.render( Pizzr.Templates.what, attrs ))
 		this.renderWishes()
 		return this
 	},
