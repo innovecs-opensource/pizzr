@@ -27,21 +27,21 @@ Pizzr.Views.App = Backbone.View.extend({
 			}
 		})
 	},
+	types: ['pizza', 'sushi', 'booze'],
 	render: function() {
 		var byWhat = this.collection.groupBy('what')
 			,wishes
 			,view
 			,el
 
-		for(what in byWhat) if (byWhat.hasOwnProperty( what )) {
-			wishes = new Pizzr.Collections.Wishes( byWhat[ what ] )
+		_(this.types).forEach(function( type ) {
 			view = new Pizzr.Views.What({
-				collection: wishes,
-				what: what,
+				collection: new Pizzr.Collections.Wishes( byWhat[ type ] ),
+				what: type,
 				app: this
 			})
 			this.$el.append( view.render().el )
-		}
+		}, this)
 		return this
 	}
 })
@@ -55,6 +55,10 @@ Pizzr.Views.What = Backbone.View.extend({
 		this.what = options.what
 		this.$el.addClass( this.what )
 		this.app = options.app
+
+		this.collection.on('add', this.render, this)
+		this.collection.on('remove', this.render, this)
+
 	},
 	render: function() {
 		this.$el.html( Mustache.render( Pizzr.Templates.what, {what: this.what} ))
@@ -77,7 +81,7 @@ Pizzr.Views.What = Backbone.View.extend({
 			who: who,
 			what: this.what
 		})
-		this.collection.sync()
+		this.collection.last().save()
 	}
 })
 
