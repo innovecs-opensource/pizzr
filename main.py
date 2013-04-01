@@ -3,10 +3,11 @@ import json
 import pymongo
 import pystache
 import os
+import time
 from bson import json_util
 from pymongo import MongoClient
 
-mongo = MongoClient() 
+db = MongoClient().pizzr 
 app = Flask( __name__ )
 
 def importtpls( tpldir ):
@@ -23,20 +24,36 @@ def hello():
 	print TPL
 	return TPL['index']
 
+# get list and save new
 @app.route('/wish', methods = ['GET', 'POST'])
 def list():
-	db = mongo.pizzr
-
 	if request.method == 'POST':
-		obj = json_util.loads( request.data )
-		db.wishes.insert( obj )
+		ret = json_util.loads( request.data )
+		db.wishes.insert( ret )
+	else:
+		ret = []
+		for wish in db.wishes.find():
+			ret.append(wish)
 
-	wishes = []
-	for wish in db.wishes.find():
-		wishes.append(wish)
-	return json_util.dumps( wishes )
+	return json_util.dumps( ret )
 
+# delete by id
+@app.route('/wish/<id>', methods = ['DELETE', 'PUT'])
+def one( id ):
+	db.wishes.remove( {'_id': id} )
+	ret = 'OK'
 
+	if request.method == 'PUT':
+		ret = json_util.loads( request.data )
+		db.wishes.insert( ret )
+
+	db.items.remove({'_id': 'timestamp'})
+	db.items.insert({
+		'_id': 'timestamp',
+		'time': time.time()
+	}) 
+
+	return json_util.dumps( ret )
 
 if __name__ == "__main__":
 	app.debug = True

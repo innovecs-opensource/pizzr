@@ -4,7 +4,7 @@
 		<link rel="stylesheet" type="text/css" href="static/style.css">
 	</head>
 	<body>
-		<h1>Der Pizzr</h1>
+		<h1>Pizzr</h1>
 		<div id="pizzr">
 		</div>
 
