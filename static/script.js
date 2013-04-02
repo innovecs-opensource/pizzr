@@ -10,7 +10,7 @@ Pizzr = {
 
 Pizzr.Models.Wish = Backbone.Model.extend({
 	// url: 'wish',
-	urlRoot: 'wish',
+	urlRoot: 'pizzr/wish',
 	idAttribute: '_id',
 	setMy: function( ) {
 		window.localStorage.setItem( 'pizzr_' + this.get('_id'), true )
@@ -21,7 +21,7 @@ Pizzr.Models.Wish = Backbone.Model.extend({
 })
 
 Pizzr.Collections.Wishes = Backbone.Collection.extend({
-	url: 'wish',
+	url: 'pizzr/wish',
 	model: Pizzr.Models.Wish
 })
 
@@ -42,7 +42,7 @@ Pizzr.Views.App = Backbone.View.extend({
 	updated: 0,
 	poll: function() {
 		var _this = this;
-		$.get('/is_updated/' + this.updated, function(data) {
+		$.get('/pizzr/is_updated/' + this.updated, function(data) {
 			if (_this.updated != data) {
 				_this.updated = data;
 				_this.collection.fetch({
@@ -166,9 +166,9 @@ Pizzr.Views.Wish = Backbone.View.extend({
 
 // app
 $(function() {
-pizzr = (function() {
-	var wishes = new Pizzr.Collections.Wishes
-	var pizzr = new Pizzr.Views.App( { el: $('#pizzr_app'), collection: wishes} )	
-	return pizzr
-})()
+	pizzr = (function() {
+		var wishes = new Pizzr.Collections.Wishes
+		var pizzr = new Pizzr.Views.App( { el: $('#pizzr_app'), collection: wishes} )	
+		return pizzr
+	})()
 });

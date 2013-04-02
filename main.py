@@ -11,6 +11,7 @@ from threading import Timer
 db = MongoClient().pizzr 
 app = Flask( __name__ )
 
+
 def importtpls( tpldir ):
 	tpls = {}
 	for filename in os.listdir( tpldir ):
@@ -31,6 +32,7 @@ def touch():
 
 @app.route('/')
 def hello():
+	return TPL['index']
 	return json_util.dumps( { 'data':TPL['index'] } )
 
 @app.route('/is_updated/<since>')
