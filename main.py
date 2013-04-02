@@ -20,6 +20,15 @@ def importtpls( tpldir ):
 
 TPL = importtpls( 'tpl' )
 
+def touch():
+	db.items.remove({'_id': 'timestamp'})
+	ctime = time.time()
+	db.items.insert({
+		'_id': 'timestamp',
+		'time': ctime
+	}) 
+	return ctime
+
 @app.route('/')
 def hello():
 	return TPL['index']
@@ -27,7 +36,8 @@ def hello():
 @app.route('/is_updated/<since>')
 def checkupdate( since ):
 	ts_obj = db.items.find_one('timestamp')
-	ts = ts_obj['time']
+	ts = ts_obj['time'] if ts_obj else touch()
+
 	if ts - float( since ) > 0.01:
 		return str(ts)
 	else:
@@ -56,11 +66,7 @@ def one( id ):
 		ret = json_util.loads( request.data )
 		db.wishes.insert( ret )
 
-	db.items.remove({'_id': 'timestamp'})
-	db.items.insert({
-		'_id': 'timestamp',
-		'time': time.time()
-	}) 
+	touch()
 
 	return json_util.dumps( ret )
 

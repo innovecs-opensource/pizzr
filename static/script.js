@@ -34,6 +34,7 @@ Pizzr.Templates = {
 Pizzr.Views.App = Backbone.View.extend({
 	initialize: function() {
 		var _this = this
+		this.render()
 		this.poll()
 	},
 	// data - move out?
@@ -46,7 +47,7 @@ Pizzr.Views.App = Backbone.View.extend({
 				_this.updated = data;
 				_this.collection.fetch({
 					success: function( data ) {
-						_this.render()
+						_this.dispatchCollections()
 					}
 				})	
 			}
@@ -64,21 +65,32 @@ Pizzr.Views.App = Backbone.View.extend({
 	isReadOnly: function() {
 		return window.location.hash == '#readonly'
 	},
+	dispatchCollections: function() {
+		var byWhat = this.collection.groupBy('what')
+		_(this.types).forEach(function( type ) {
+			if (this.views[ type ]) {
+				this.views[ type ].collection.reset( byWhat[ type ] )
+			}
+		}, this)
+	},
 	render: function() {
 		var byWhat = this.collection.groupBy('what')
 			,wishes
 			,view
 			,el
 		this.$el.empty()
+		this.views = this.views || {}
 
 		_(this.types).forEach(function( type ) {
-			view = new Pizzr.Views.What({
-				collection: new Pizzr.Collections.Wishes( byWhat[ type ] ),
+			this.views[ type ] = new Pizzr.Views.What({
+				collection: new Pizzr.Collections.Wishes( ),
 				what: type,
 				app: this
 			})
-			this.$el.append( view.render().el )
+			this.$el.append( this.views[ type ].render().el )
 		}, this)
+
+		this.dispatchCollections()
 		return this
 	}
 })
@@ -93,8 +105,7 @@ Pizzr.Views.What = Backbone.View.extend({
 		this.$el.addClass( this.what )
 		this.app = options.app
 
-		this.collection.on('add', this.render, this)
-		this.collection.on('remove', this.render, this)
+		this.collection.on('reset add remove', this.renderWishes, this)
 
 		this.app.on('name:change', this.render, this)
 	},
@@ -112,6 +123,7 @@ Pizzr.Views.What = Backbone.View.extend({
 		var view
 			,el
 			,list = this.$el.find('.list')
+		list.empty()
 		this.collection.forEach(function(k) {
 			view = new Pizzr.Views.Wish({ model: k })
 			list.append( view.render().el )
