@@ -31,7 +31,7 @@ def touch():
 
 @app.route('/')
 def hello():
-	return TPL['index']
+	return json_util.dumps( { 'data':TPL['index'] } )
 
 @app.route('/is_updated/<since>')
 def checkupdate( since ):

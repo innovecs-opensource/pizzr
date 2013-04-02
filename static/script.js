@@ -165,8 +165,10 @@ Pizzr.Views.Wish = Backbone.View.extend({
 })
 
 // app
+$(function() {
 pizzr = (function() {
 	var wishes = new Pizzr.Collections.Wishes
-	var pizzr = new Pizzr.Views.App( { el: $('#pizzr'), collection: wishes} )	
+	var pizzr = new Pizzr.Views.App( { el: $('#pizzr_app'), collection: wishes} )	
 	return pizzr
 })()
+});
